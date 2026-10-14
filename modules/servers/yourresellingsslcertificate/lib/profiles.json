@@ -1,0 +1,1250 @@
+{
+  "ssl_certificate": {
+    "slug": "ssl_certificate",
+    "create": {
+      "method": "POST",
+      "path": "/products/ssl-certificates/order",
+      "source": "app/Http/Controllers/Api/V1/SslCertificate/SslCertificateApiController.php:193",
+      "required_fields": [
+        "product_id",
+        "common_name",
+        "period_months",
+        "csr",
+        "dcv"
+      ],
+      "response_id_path": "data.certificate.id",
+      "body": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "description": "Product ID from GET /products",
+            "format": "uuid",
+            "x-validation": [
+              "required",
+              "uuid",
+              "exists:ssl_certificate_products,id"
+            ],
+            "x-validation-expressions": []
+          },
+          "common_name": {
+            "type": "string",
+            "description": "Primary domain, must match the CSR",
+            "maxLength": 255,
+            "x-validation": [
+              "required",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "sans": {
+            "type": "array",
+            "description": "Additional domains (multi-domain products only)",
+            "items": {
+              "type": "string",
+              "maxLength": 255,
+              "x-validation": [
+                "string",
+                "max:255"
+              ],
+              "x-validation-expressions": []
+            },
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "array"
+            ],
+            "x-validation-expressions": []
+          },
+          "period_months": {
+            "type": "integer",
+            "description": "Period in months, must be one of the product periods",
+            "x-validation": [
+              "required",
+              "integer"
+            ],
+            "x-validation-expressions": []
+          },
+          "csr": {
+            "type": "string",
+            "description": "PEM-encoded CSR",
+            "x-validation": [
+              "required",
+              "string"
+            ],
+            "x-validation-expressions": []
+          },
+          "private_key": {
+            "type": "string",
+            "description": "Optional: store the matching key so it can be downloaded later",
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "string"
+            ],
+            "x-validation-expressions": []
+          },
+          "dcv": {
+            "type": "array",
+            "description": "Validation per domain: [{\"domain\": \"example.com\", \"method\": \"dns|email|file\", \"email\": \"admin@example.com\"}]",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "domain": {
+                  "type": "string",
+                  "maxLength": 255,
+                  "x-validation": [
+                    "required",
+                    "string",
+                    "max:255"
+                  ],
+                  "x-validation-expressions": []
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "nullable": true,
+                  "x-validation": [
+                    "nullable",
+                    "email"
+                  ],
+                  "x-validation-expressions": []
+                },
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "email",
+                    "dns",
+                    "file"
+                  ],
+                  "x-validation": [
+                    "required",
+                    "in:email,dns,file"
+                  ],
+                  "x-validation-expressions": []
+                }
+              },
+              "required": [
+                "domain",
+                "method"
+              ]
+            },
+            "minItems": 1,
+            "x-validation": [
+              "required",
+              "array",
+              "min:1"
+            ],
+            "x-validation-expressions": []
+          },
+          "organization": {
+            "type": "object",
+            "description": "Required for OV/EV products",
+            "additionalProperties": true,
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "array"
+            ],
+            "x-validation-expressions": [],
+            "properties": {
+              "addressLine1": {
+                "type": "string",
+                "maxLength": 255,
+                "x-validation": [
+                  "required_with:organization",
+                  "string",
+                  "max:255"
+                ],
+                "x-validation-expressions": []
+              },
+              "city": {
+                "type": "string",
+                "maxLength": 255,
+                "x-validation": [
+                  "required_with:organization",
+                  "string",
+                  "max:255"
+                ],
+                "x-validation-expressions": []
+              },
+              "coc": {
+                "type": "string",
+                "maxLength": 100,
+                "nullable": true,
+                "x-validation": [
+                  "nullable",
+                  "string",
+                  "max:100"
+                ],
+                "x-validation-expressions": []
+              },
+              "country": {
+                "type": "string",
+                "minLength": 2,
+                "maxLength": 2,
+                "x-validation": [
+                  "required_with:organization",
+                  "string",
+                  "size:2"
+                ],
+                "x-validation-expressions": []
+              },
+              "name": {
+                "type": "string",
+                "maxLength": 255,
+                "x-validation": [
+                  "required_with:organization",
+                  "string",
+                  "max:255"
+                ],
+                "x-validation-expressions": []
+              },
+              "postalCode": {
+                "type": "string",
+                "maxLength": 20,
+                "x-validation": [
+                  "required_with:organization",
+                  "string",
+                  "max:20"
+                ],
+                "x-validation-expressions": []
+              },
+              "region": {
+                "type": "string",
+                "maxLength": 255,
+                "nullable": true,
+                "x-validation": [
+                  "nullable",
+                  "string",
+                  "max:255"
+                ],
+                "x-validation-expressions": []
+              }
+            },
+            "required": []
+          },
+          "approver": {
+            "type": "object",
+            "description": "Contact person, required for EV products",
+            "additionalProperties": true,
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "array"
+            ],
+            "x-validation-expressions": [],
+            "properties": {
+              "email": {
+                "type": "string",
+                "format": "email",
+                "x-validation": [
+                  "required_with:approver",
+                  "email"
+                ],
+                "x-validation-expressions": []
+              },
+              "firstName": {
+                "type": "string",
+                "maxLength": 255,
+                "x-validation": [
+                  "required_with:approver",
+                  "string",
+                  "max:255"
+                ],
+                "x-validation-expressions": []
+              },
+              "jobTitle": {
+                "type": "string",
+                "maxLength": 255,
+                "x-validation": [
+                  "required_with:approver",
+                  "string",
+                  "max:255"
+                ],
+                "x-validation-expressions": []
+              },
+              "lastName": {
+                "type": "string",
+                "maxLength": 255,
+                "x-validation": [
+                  "required_with:approver",
+                  "string",
+                  "max:255"
+                ],
+                "x-validation-expressions": []
+              },
+              "phone": {
+                "type": "string",
+                "maxLength": 50,
+                "nullable": true,
+                "x-validation": [
+                  "nullable",
+                  "string",
+                  "max:50"
+                ],
+                "x-validation-expressions": []
+              }
+            },
+            "required": []
+          }
+        },
+        "additionalProperties": true,
+        "required": [
+          "common_name",
+          "csr",
+          "dcv",
+          "period_months",
+          "product_id"
+        ]
+      },
+      "bodyRequired": true,
+      "pathParameters": [],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "permissions": [
+        "certificates:create"
+      ],
+      "responseMode": "json"
+    },
+    "termination": {
+      "method": "POST",
+      "path": "/products/ssl-certificates/{certificate}/revoke",
+      "semantics": "irreversible certificate revocation; optional reason",
+      "body": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Reason stored with the certificate",
+            "maxLength": 255,
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          }
+        },
+        "additionalProperties": true,
+        "required": []
+      },
+      "bodyRequired": false,
+      "pathParameters": [
+        {
+          "name": "certificate",
+          "type": "string",
+          "description": "Certificate ID"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "permissions": [
+        "certificates:delete"
+      ],
+      "responseMode": "json"
+    },
+    "suspend": null,
+    "unsuspend": null,
+    "notes": [
+      "dcv list min1, each domain and method(email,dns,file) required",
+      "DV/OV/EV product requirements may require organization and approver details",
+      "No suspend/unsuspend endpoint; revocation is not ordinary service pause",
+      "POST /products/ssl-certificates/{certificate}/renew exists"
+    ],
+    "displayName": "SSL-Zertifikat",
+    "module": "yourresellingsslcertificate",
+    "show": {
+      "id": "GET /products/ssl-certificates/{certificate}",
+      "group": "sslCertificates",
+      "name": "get",
+      "method": "GET",
+      "path": "/products/ssl-certificates/{certificate}",
+      "summary": "Get certificate details",
+      "description": "Includes the per-domain validation (DCV) state so you can publish the required DNS records or files.",
+      "germanSummary": "Zertifikatsdetails abrufen",
+      "permissions": [
+        "certificates:read"
+      ],
+      "authenticated": true,
+      "pathParameters": [
+        {
+          "name": "certificate",
+          "type": "string",
+          "description": "Certificate ID"
+        }
+      ],
+      "query": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "body": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "bodyRequired": false,
+      "requestContentType": "application/json",
+      "responseMode": "json",
+      "responses": [
+        {
+          "status": 200,
+          "description": "Certificate details",
+          "germanDescription": "Zertifikatsdetails",
+          "schema": null,
+          "example": null,
+          "contentType": "application/json"
+        },
+        {
+          "status": 404,
+          "description": "Certificate not found",
+          "germanDescription": "Zertifikat nicht gefunden",
+          "schema": null,
+          "example": null,
+          "contentType": "application/json"
+        }
+      ],
+      "deprecated": false,
+      "source": "app/Http/Controllers/Api/V1/SslCertificate/SslCertificateApiController.php:157",
+      "routeName": "api.ssl-certificates.show"
+    },
+    "showDataPath": "data.certificate",
+    "activeStatuses": [
+      "issued",
+      "active"
+    ],
+    "views": {
+      "get": {
+        "id": "GET /products/ssl-certificates/{certificate}",
+        "group": "sslCertificates",
+        "name": "get",
+        "method": "GET",
+        "path": "/products/ssl-certificates/{certificate}",
+        "summary": "Get certificate details",
+        "description": "Includes the per-domain validation (DCV) state so you can publish the required DNS records or files.",
+        "germanSummary": "Zertifikatsdetails abrufen",
+        "permissions": [
+          "certificates:read"
+        ],
+        "authenticated": true,
+        "pathParameters": [
+          {
+            "name": "certificate",
+            "type": "string",
+            "description": "Certificate ID"
+          }
+        ],
+        "query": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "body": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "bodyRequired": false,
+        "requestContentType": "application/json",
+        "responseMode": "json",
+        "responses": [
+          {
+            "status": 200,
+            "description": "Certificate details",
+            "germanDescription": "Zertifikatsdetails",
+            "schema": null,
+            "example": null,
+            "contentType": "application/json"
+          },
+          {
+            "status": 404,
+            "description": "Certificate not found",
+            "germanDescription": "Zertifikat nicht gefunden",
+            "schema": null,
+            "example": null,
+            "contentType": "application/json"
+          }
+        ],
+        "deprecated": false,
+        "source": "app/Http/Controllers/Api/V1/SslCertificate/SslCertificateApiController.php:157",
+        "routeName": "api.ssl-certificates.show"
+      },
+      "download": {
+        "id": "GET /products/ssl-certificates/{certificate}/download",
+        "group": "sslCertificates",
+        "name": "download",
+        "method": "GET",
+        "path": "/products/ssl-certificates/{certificate}/download",
+        "summary": "Download certificate",
+        "description": "Returns the issued certificate. `format` selects what you get: the certificate itself (`crt`), the intermediate chain (`ca-bundle`), the root (`ca`), a PKCS#7 container (`pkcs7`), the CSR (`csr`) or a ZIP with everything (`zip`). Binary formats come back base64-encoded, indicated by `encoding`.",
+        "germanSummary": "Zertifikat herunterladen",
+        "permissions": [
+          "certificates:read"
+        ],
+        "authenticated": true,
+        "pathParameters": [
+          {
+            "name": "certificate",
+            "type": "string",
+            "description": "Certificate ID"
+          }
+        ],
+        "query": {
+          "type": "object",
+          "properties": {
+            "format": {
+              "description": "Download format",
+              "type": "string",
+              "enum": [
+                "crt",
+                "ca-bundle",
+                "ca",
+                "pkcs7",
+                "csr",
+                "zip"
+              ],
+              "default": "crt",
+              "x-validation": [
+                "sometimes"
+              ],
+              "x-validation-expressions": [
+                "Rule::in(array_keys($formats))"
+              ]
+            }
+          },
+          "additionalProperties": true,
+          "required": []
+        },
+        "body": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "bodyRequired": false,
+        "requestContentType": "application/json",
+        "responseMode": "json",
+        "responses": [
+          {
+            "status": 200,
+            "description": "Certificate content",
+            "germanDescription": "Zertifikatsinhalt",
+            "schema": null,
+            "example": {
+              "success": true,
+              "data": {
+                "common_name": "example.com",
+                "format": "crt",
+                "filename": "example.com.crt",
+                "encoding": "utf-8",
+                "content": "-----BEGIN CERTIFICATE-----\n…"
+              }
+            },
+            "contentType": "application/json"
+          },
+          {
+            "status": 409,
+            "description": "Certificate not issued yet",
+            "germanDescription": "Zertifikat noch nicht ausgestellt",
+            "schema": null,
+            "example": null,
+            "contentType": "application/json"
+          }
+        ],
+        "deprecated": false,
+        "source": "app/Http/Controllers/Api/V1/SslCertificate/SslCertificateApiController.php:384",
+        "routeName": "api.ssl-certificates.download"
+      },
+      "privateKey": {
+        "id": "GET /products/ssl-certificates/{certificate}/private-key",
+        "group": "sslCertificates",
+        "name": "privateKey",
+        "method": "GET",
+        "path": "/products/ssl-certificates/{certificate}/private-key",
+        "summary": "Download private key",
+        "description": "Returns the private key — only for certificates whose key was generated here (POST /csr) and stored with the order.",
+        "germanSummary": "Privaten Schlüssel herunterladen",
+        "permissions": [
+          "certificates:read"
+        ],
+        "authenticated": true,
+        "pathParameters": [
+          {
+            "name": "certificate",
+            "type": "string",
+            "description": "Certificate ID"
+          }
+        ],
+        "query": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "body": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "bodyRequired": false,
+        "requestContentType": "application/json",
+        "responseMode": "json",
+        "responses": [
+          {
+            "status": 200,
+            "description": "Private key PEM",
+            "germanDescription": "Privater Schlüssel im PEM-Format",
+            "schema": null,
+            "example": null,
+            "contentType": "application/json"
+          },
+          {
+            "status": 404,
+            "description": "No stored private key",
+            "germanDescription": "Kein hinterlegter privater Schlüssel",
+            "schema": null,
+            "example": null,
+            "contentType": "application/json"
+          }
+        ],
+        "deprecated": false,
+        "source": "app/Http/Controllers/Api/V1/SslCertificate/SslCertificateApiController.php:453",
+        "routeName": "api.ssl-certificates.private-key"
+      }
+    },
+    "controls": {},
+    "customerFields": [
+      "common_name",
+      "csr",
+      "dcv"
+    ],
+    "fields": [
+      {
+        "name": "common_name",
+        "path": false,
+        "required": true,
+        "label": "Domainname",
+        "type": "string",
+        "description": "Primary domain, must match the CSR",
+        "maxLength": 255,
+        "x-validation": [
+          "required",
+          "string",
+          "max:255"
+        ],
+        "x-validation-expressions": []
+      },
+      {
+        "name": "csr",
+        "path": false,
+        "required": true,
+        "label": "CSR",
+        "type": "string",
+        "description": "PEM-encoded CSR",
+        "x-validation": [
+          "required",
+          "string"
+        ],
+        "x-validation-expressions": []
+      },
+      {
+        "name": "dcv",
+        "path": false,
+        "required": true,
+        "label": "Domainvalidierung (JSON)",
+        "type": "array",
+        "description": "Validation per domain: [{\"domain\": \"example.com\", \"method\": \"dns|email|file\", \"email\": \"admin@example.com\"}]",
+        "items": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "domain": {
+              "type": "string",
+              "maxLength": 255,
+              "x-validation": [
+                "required",
+                "string",
+                "max:255"
+              ],
+              "x-validation-expressions": []
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "nullable": true,
+              "x-validation": [
+                "nullable",
+                "email"
+              ],
+              "x-validation-expressions": []
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "email",
+                "dns",
+                "file"
+              ],
+              "x-validation": [
+                "required",
+                "in:email,dns,file"
+              ],
+              "x-validation-expressions": []
+            }
+          },
+          "required": [
+            "domain",
+            "method"
+          ]
+        },
+        "minItems": 1,
+        "x-validation": [
+          "required",
+          "array",
+          "min:1"
+        ],
+        "x-validation-expressions": []
+      },
+      {
+        "name": "period_months",
+        "path": false,
+        "required": true,
+        "label": "Laufzeit (Monate)",
+        "type": "integer",
+        "description": "Period in months, must be one of the product periods",
+        "x-validation": [
+          "required",
+          "integer"
+        ],
+        "x-validation-expressions": []
+      },
+      {
+        "name": "product_id",
+        "path": false,
+        "required": true,
+        "label": "Produkt-ID",
+        "type": "string",
+        "description": "Product ID from GET /products",
+        "format": "uuid",
+        "x-validation": [
+          "required",
+          "uuid",
+          "exists:ssl_certificate_products,id"
+        ],
+        "x-validation-expressions": []
+      },
+      {
+        "name": "approver",
+        "path": false,
+        "required": [],
+        "label": "approver",
+        "type": "object",
+        "description": "Contact person, required for EV products",
+        "additionalProperties": true,
+        "nullable": true,
+        "x-validation": [
+          "nullable",
+          "array"
+        ],
+        "x-validation-expressions": [],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "x-validation": [
+              "required_with:approver",
+              "email"
+            ],
+            "x-validation-expressions": []
+          },
+          "firstName": {
+            "type": "string",
+            "maxLength": 255,
+            "x-validation": [
+              "required_with:approver",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "jobTitle": {
+            "type": "string",
+            "maxLength": 255,
+            "x-validation": [
+              "required_with:approver",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 255,
+            "x-validation": [
+              "required_with:approver",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 50,
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "string",
+              "max:50"
+            ],
+            "x-validation-expressions": []
+          }
+        }
+      },
+      {
+        "name": "organization",
+        "path": false,
+        "required": [],
+        "label": "organization",
+        "type": "object",
+        "description": "Required for OV/EV products",
+        "additionalProperties": true,
+        "nullable": true,
+        "x-validation": [
+          "nullable",
+          "array"
+        ],
+        "x-validation-expressions": [],
+        "properties": {
+          "addressLine1": {
+            "type": "string",
+            "maxLength": 255,
+            "x-validation": [
+              "required_with:organization",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "city": {
+            "type": "string",
+            "maxLength": 255,
+            "x-validation": [
+              "required_with:organization",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "coc": {
+            "type": "string",
+            "maxLength": 100,
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "string",
+              "max:100"
+            ],
+            "x-validation-expressions": []
+          },
+          "country": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "x-validation": [
+              "required_with:organization",
+              "string",
+              "size:2"
+            ],
+            "x-validation-expressions": []
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "x-validation": [
+              "required_with:organization",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "postalCode": {
+            "type": "string",
+            "maxLength": 20,
+            "x-validation": [
+              "required_with:organization",
+              "string",
+              "max:20"
+            ],
+            "x-validation-expressions": []
+          },
+          "region": {
+            "type": "string",
+            "maxLength": 255,
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          }
+        }
+      },
+      {
+        "name": "private_key",
+        "path": false,
+        "required": false,
+        "label": "private_key",
+        "type": "string",
+        "description": "Optional: store the matching key so it can be downloaded later",
+        "nullable": true,
+        "x-validation": [
+          "nullable",
+          "string"
+        ],
+        "x-validation-expressions": []
+      },
+      {
+        "name": "sans",
+        "path": false,
+        "required": false,
+        "label": "sans",
+        "type": "array",
+        "description": "Additional domains (multi-domain products only)",
+        "items": {
+          "type": "string",
+          "maxLength": 255,
+          "x-validation": [
+            "string",
+            "max:255"
+          ],
+          "x-validation-expressions": []
+        },
+        "nullable": true,
+        "x-validation": [
+          "nullable",
+          "array"
+        ],
+        "x-validation-expressions": []
+      }
+    ],
+    "configFields": [
+      {
+        "name": "common_name",
+        "path": false,
+        "required": true,
+        "label": "Domainname",
+        "type": "string",
+        "description": "Primary domain, must match the CSR",
+        "maxLength": 255,
+        "x-validation": [
+          "required",
+          "string",
+          "max:255"
+        ],
+        "x-validation-expressions": []
+      },
+      {
+        "name": "csr",
+        "path": false,
+        "required": true,
+        "label": "CSR",
+        "type": "string",
+        "description": "PEM-encoded CSR",
+        "x-validation": [
+          "required",
+          "string"
+        ],
+        "x-validation-expressions": []
+      },
+      {
+        "name": "dcv",
+        "path": false,
+        "required": true,
+        "label": "Domainvalidierung (JSON)",
+        "type": "array",
+        "description": "Validation per domain: [{\"domain\": \"example.com\", \"method\": \"dns|email|file\", \"email\": \"admin@example.com\"}]",
+        "items": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "domain": {
+              "type": "string",
+              "maxLength": 255,
+              "x-validation": [
+                "required",
+                "string",
+                "max:255"
+              ],
+              "x-validation-expressions": []
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "nullable": true,
+              "x-validation": [
+                "nullable",
+                "email"
+              ],
+              "x-validation-expressions": []
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "email",
+                "dns",
+                "file"
+              ],
+              "x-validation": [
+                "required",
+                "in:email,dns,file"
+              ],
+              "x-validation-expressions": []
+            }
+          },
+          "required": [
+            "domain",
+            "method"
+          ]
+        },
+        "minItems": 1,
+        "x-validation": [
+          "required",
+          "array",
+          "min:1"
+        ],
+        "x-validation-expressions": []
+      },
+      {
+        "name": "period_months",
+        "path": false,
+        "required": true,
+        "label": "Laufzeit (Monate)",
+        "type": "integer",
+        "description": "Period in months, must be one of the product periods",
+        "x-validation": [
+          "required",
+          "integer"
+        ],
+        "x-validation-expressions": []
+      },
+      {
+        "name": "product_id",
+        "path": false,
+        "required": true,
+        "label": "Produkt-ID",
+        "type": "string",
+        "description": "Product ID from GET /products",
+        "format": "uuid",
+        "x-validation": [
+          "required",
+          "uuid",
+          "exists:ssl_certificate_products,id"
+        ],
+        "x-validation-expressions": []
+      },
+      {
+        "name": "approver",
+        "path": false,
+        "required": [],
+        "label": "approver",
+        "type": "object",
+        "description": "Contact person, required for EV products",
+        "additionalProperties": true,
+        "nullable": true,
+        "x-validation": [
+          "nullable",
+          "array"
+        ],
+        "x-validation-expressions": [],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "x-validation": [
+              "required_with:approver",
+              "email"
+            ],
+            "x-validation-expressions": []
+          },
+          "firstName": {
+            "type": "string",
+            "maxLength": 255,
+            "x-validation": [
+              "required_with:approver",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "jobTitle": {
+            "type": "string",
+            "maxLength": 255,
+            "x-validation": [
+              "required_with:approver",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 255,
+            "x-validation": [
+              "required_with:approver",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 50,
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "string",
+              "max:50"
+            ],
+            "x-validation-expressions": []
+          }
+        }
+      },
+      {
+        "name": "organization",
+        "path": false,
+        "required": [],
+        "label": "organization",
+        "type": "object",
+        "description": "Required for OV/EV products",
+        "additionalProperties": true,
+        "nullable": true,
+        "x-validation": [
+          "nullable",
+          "array"
+        ],
+        "x-validation-expressions": [],
+        "properties": {
+          "addressLine1": {
+            "type": "string",
+            "maxLength": 255,
+            "x-validation": [
+              "required_with:organization",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "city": {
+            "type": "string",
+            "maxLength": 255,
+            "x-validation": [
+              "required_with:organization",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "coc": {
+            "type": "string",
+            "maxLength": 100,
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "string",
+              "max:100"
+            ],
+            "x-validation-expressions": []
+          },
+          "country": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "x-validation": [
+              "required_with:organization",
+              "string",
+              "size:2"
+            ],
+            "x-validation-expressions": []
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "x-validation": [
+              "required_with:organization",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          },
+          "postalCode": {
+            "type": "string",
+            "maxLength": 20,
+            "x-validation": [
+              "required_with:organization",
+              "string",
+              "max:20"
+            ],
+            "x-validation-expressions": []
+          },
+          "region": {
+            "type": "string",
+            "maxLength": 255,
+            "nullable": true,
+            "x-validation": [
+              "nullable",
+              "string",
+              "max:255"
+            ],
+            "x-validation-expressions": []
+          }
+        }
+      },
+      {
+        "name": "private_key",
+        "path": false,
+        "required": false,
+        "label": "private_key",
+        "type": "string",
+        "description": "Optional: store the matching key so it can be downloaded later",
+        "nullable": true,
+        "x-validation": [
+          "nullable",
+          "string"
+        ],
+        "x-validation-expressions": []
+      },
+      {
+        "name": "sans",
+        "path": false,
+        "required": false,
+        "label": "sans",
+        "type": "array",
+        "description": "Additional domains (multi-domain products only)",
+        "items": {
+          "type": "string",
+          "maxLength": 255,
+          "x-validation": [
+            "string",
+            "max:255"
+          ],
+          "x-validation-expressions": []
+        },
+        "nullable": true,
+        "x-validation": [
+          "nullable",
+          "array"
+        ],
+        "x-validation-expressions": []
+      }
+    ]
+  }
+}

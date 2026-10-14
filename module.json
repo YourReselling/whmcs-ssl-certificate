@@ -1,0 +1,10 @@
+{
+  "repository": "whmcs-ssl-certificate",
+  "version": "3.0.0",
+  "product": "ssl_certificate",
+  "module": "yourresellingsslcertificate",
+  "type": "servers",
+  "modulePath": "modules/servers/yourresellingsslcertificate",
+  "namespace": "YourReselling\\Whmcs\\SslCertificate",
+  "contractDigest": "a6cdf1be65f4bcb63fd16c07820052f53ccff30819262ec5393061ac44e03956"
+}
